@@ -23,4 +23,6 @@ RUN pip install -r requirements.txt
 
 COPY . /opt/cloudmapper
 
+VOLUME /opt/cloudmapper/account-data
+VOLUME /opt/cloudmapper/web/account-data
 CMD [ "/opt/cloudmapper/docker-entrypoint.sh" ]

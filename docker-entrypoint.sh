@@ -6,7 +6,7 @@ cloudmapCollectData=${CLOUDMAPPER_COLLECT_DATA:-1}
 cloudmapExportReport=${CLOUDMAPPER_EXPORT_REPORT:-1}
 cloudmapRunServer=${CLOUDMAPPER_RUN_SERVER:-0}
 
-cloudmapConfigFile='./config.json'
+cloudmapConfigFile='./account-data/config.json'
 
 if [ -z "${AWS_ACCOUNT_NAME}" ]; then
   AWS_ACCOUNT_NAME=$(aws iam list-account-aliases | jq -r '.AccountAliases[0]')
@@ -18,20 +18,27 @@ fi
 
 echo "Hello ${AWS_ACCOUNT_NAME} (${AWS_ACCOUNT_ID})!"
 
-if [ ! -f ${cloudmapConfigFile} ]; then
+if [ -z "$(cat ${cloudmapConfigFile} | grep ${AWS_ACCOUNT_ID})" ]; then
+  echo "AutoConfig for ${AWS_ACCOUNT_ID}"
   python cloudmapper.py configure add-account \
      --config ${cloudmapConfigFile} \
      --name ${AWS_ACCOUNT_NAME} \
      --id ${AWS_ACCOUNT_ID} \
-     --default DEFAULT
+     --default true
 fi
 
-cat ./config.json
+cat ${cloudmapConfigFile}
 
 if [ $cloudmapCollectData -gt 0 ]; then
+  echo "Collecting data..."
   python cloudmapper.py collect \
     --config ${cloudmapConfigFile} \
     --account "${AWS_ACCOUNT_NAME}"
+fi
+
+if [ ! -d ./account-data/${AWS_ACCOUNT_NAME} ]; then
+  echo "--FAIL-- CLOUDMAPPER_COLLECT_DATA must be set to 1, at least once"
+  exit 1
 fi
 
 if [ $cloudmapExportReport -gt 0 ]; then
@@ -41,6 +48,7 @@ if [ $cloudmapExportReport -gt 0 ]; then
 fi
 
 if [ $cloudmapRunServer -gt 0 ]; then
+  echo "Preparing for server run"
   python cloudmapper.py prepare \
     --config ${cloudmapConfigFile} \
     --account "${AWS_ACCOUNT_NAME}"

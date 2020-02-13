@@ -2,7 +2,8 @@ clean:
 	rm -rf account-data/*
 	rm -rf web/account-data/*
 
-docker-image:
+docker-image: clean
+	cp config.json.demo account-data/config.json
 	docker build -t agilesyndrome/cloudmapper .
 
 setup:
