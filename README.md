@@ -3,6 +3,36 @@ CloudMapper
 
 * A fork from duo-labs
 
+## Getting Started
+
+* Setup some ENV vars on your host machine, or in the run line:
+ENV Var | Description
+:-------|:-------------------
+AWS_ACCESS_KEY_ID | Your Amazon Access Key ID
+AWS_SECRET_ACCESS_KEY | Your Amazon Secret Access Key
+AWS_ACCOUNT_ID | (Optional) Determined automatically by `aws sts get-caller-identity`
+AWS_ACCOUNT_NAME | (Optional) Determined automatically by `aws iam list-account-aliases`
+CLOUDMAPPER_COLLECT_DATA | Default `1` - Runs collection process.  If set to `0` the reports will be based on currently data in the account-data volume
+CLOUDMAPPER_EXPORT_REPORT | Default `1` - Exports the report data to web/report.html and web/map.html
+CLOUDMAPPER_RUN_SERVER | Default `0` When `1` the docker container will run a server on port 8000 with the results. When set to `0 the container will create the report and exit.
+
+* Run this script:
+```
+docker run \
+  -it \
+  -e AWS_ACCOUNT_ID \
+  -e AWS_DEFAULT_REGION \
+  -e CLOUDMAPPER_RUN_SERVER \
+  -e CLOUDMAPPER_COLLECT_DATA \
+  -e CLOUDMAPPER_EXPORT_REPORT \
+  -e AWS_ACCESS_KEY_ID \
+  -e AWS_SECRET_ACCESS_KEY \
+  -p 8000:8000 \
+  -v ${PWD}/account-data:/opt/cloudmapper/account-data \
+  -v ${PWD}/web/account-data:/opt/cloudmapper/web/account-data \
+  agilesyndrome/cloudmapper:latest
+```
+
 CloudMapper helps you analyze your Amazon Web Services (AWS) environments.  The original purpose was to generate network diagrams and display them in your browser.  It now contains much more functionality, including auditing for security issues.
 
 - [Network mapping demo](https://duo-labs.github.io/cloudmapper/)
